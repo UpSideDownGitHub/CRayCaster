@@ -1,46 +1,48 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <stdbool.h>
 #include "raycaster.h"
 
-// SDL2.lib; SDL2main.lib;
+// include things
+// SDL2.lib; SDL2main.lib; Shell32.lib;
+// tutorial being used
+// https://github.com/vinibiavatti1/RayCastingTutorial/wiki/Utilities
+
+
 
 int main(int argc, char* argv) {
-	// initilise values
-	double posX = initXPos, posY = initYPos;
-	double dirX = initXDir, dirY = initYDir;
-	double planeX = initPlaneX, planeY = initPlaneY;
-	double time = 0;
-	double oldTime = 0;
 
-	// setup renderer
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		fprintf(stderr, "SDL initialization failed (%s)\n", SDL_GetError());
-		return -1;
-	}
-	if (SDL_CreateWindowAndRenderer(screenWidth, screenHeight, 0, window, renderer) != 0) {
-		fprintf(stderr, "Window creation failed (%s)\n", SDL_GetError());
-		return -1;
-	}
+	bool quit = false;
+	SDL_Event event;
 
-	// main loop
-	SDL_bool done;
-	done = SDL_FALSE;
-	while (!done) {
-		for(int x = 0; x < screenWidth; x++){
-			// ray pos & Dir
-			double cameraX = 2 * x / (double)screenWidth - 1;
-			double rayDirX = dirX + planeX * cameraX;
-			double rayDirY = dirY + planeY * cameraX;
+	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Window* window = SDL_CreateWindow("SDL2 line drawing", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
-			int mapX = (int)posX;
-			int mapY = (int)posY;
+    while (!quit)
+    {
+        SDL_Delay(10);
+        SDL_PollEvent(&event);
 
-			double sideDistX;
+        switch (event.type)
+        {
+        case SDL_QUIT:
+            quit = true;
+            break;
+            // TODO input handling code goes here
+        }
 
-		}
-	}
+        // clear window
+
+        SDL_SetRenderDrawColor(renderer, 242, 242, 242, 255);
+        SDL_RenderClear(renderer);
+
+        // TODO rendering code goes here
+
+        // render window
+        SDL_RenderPresent(renderer);
+    }
 
 
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 	return 0;
 }
