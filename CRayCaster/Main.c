@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include "raycaster.h"
 
+// SDL2.lib; SDL2main.lib;
+
 int main(int argc, char* argv) {
 	// initilise values
 	double posX = initXPos, posY = initYPos;
