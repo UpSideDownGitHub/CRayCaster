@@ -11,12 +11,12 @@ void drawLine(int x1, int y1, int x2, int y2, Color color) {
 }
 
 void rayCasting(Player *player) {
-    float rayAngle = player->angle - halfFOV;
+    double rayAngle = player->angle - halfFOV;
 
-    for (int rayCount = 0; rayCount < screenWidth; rayCount++){
+    for (int rayCount = 0; rayCount < screenWidth; rayCount++) {
         Ray ray = { player->x, player->y };
-        double rayCos = cos(degreesToRadians(rayAngle)) / precision;
-        double raySin = sin(degreesToRadians(rayAngle)) / precision;
+        float rayCos = cos(degreesToRadians(rayAngle)) / precision;
+        float raySin = sin(degreesToRadians(rayAngle)) / precision;
         
         int wall = 0;
         while (wall == 0) {
@@ -25,16 +25,20 @@ void rayCasting(Player *player) {
             wall = worldMap[(int)floor(ray.y)][(int)floor(ray.x)];
         }
 
-        double distance = sqrt(pow(player->x - ray.x, 2) + 
+        float distance = sqrt(pow(player->x - ray.x, 2) +
             pow(player->y - ray.y, 2));
-        double wallHeight = floor(halfHeight / distance);
+        distance *= cos(degreesToRadians(rayAngle - player->angle));
+        float wallHeight = halfHeight / distance;
 
-        drawLine(rayCount, 0, 
-            rayCount, halfHeight - wallHeight, blue);
-        drawLine(rayCount, halfHeight - wallHeight,
-            rayCount, halfHeight + wallHeight, red);
-        drawLine(rayCount, halfHeight + wallHeight,
-            rayCount, screenHeight, green);
+        // Calculate screen coordinates of wall
+        int wallScreenHeight = (int)(halfHeight / distance);
+        int wallTop = halfHeight - wallScreenHeight / 2;
+        int wallBottom = halfHeight + wallScreenHeight / 2;
+
+        // Draw wall
+        drawLine(rayCount, 0, rayCount, wallTop, blue);
+        drawLine(rayCount, wallTop, rayCount, wallBottom, red);
+        drawLine(rayCount, wallBottom, rayCount, screenHeight, green);
 
         // increment angle
         rayAngle += incAngle;
@@ -64,6 +68,39 @@ int main(int argc, char* argv) {
         case SDL_QUIT:
             quit = true;
             break;
+        case SDL_KEYDOWN:
+            switch (event.key.keysym.sym) {
+                case SDLK_w: {
+                    double playerCos = cos(degreesToRadians(player.angle)) * movementSpeed;
+                    double playerSin = sin(degreesToRadians(player.angle)) * movementSpeed;
+                    double newX = playerCos + player.x;
+                    double newY = playerSin + player.y;
+
+                    if (worldMap[(int)floor(newY)][(int)floor(newX)] == 0) {
+                        player.x = newX;
+                        player.y = newY;
+                    }
+                    break;
+                }
+                case SDLK_s: {
+                    double playerCos = cos(degreesToRadians(player.angle)) * movementSpeed;
+                    double playerSin = sin(degreesToRadians(player.angle)) * movementSpeed;
+                    double newX = player.x - playerCos;
+                    double newY = player.y - playerSin;
+
+                    if (worldMap[(int)floor(newY)][(int)floor(newX)] == 0) {
+                        player.x = newX;
+                        player.y = newY;
+                    }
+                    break;
+                }
+                case SDLK_a:
+                    player.angle -= rotationSpeed;
+                    break;
+                case SDLK_d:
+                    player.angle += rotationSpeed;
+                    break;
+            }
         }
 
         // CLEAR WINDOW

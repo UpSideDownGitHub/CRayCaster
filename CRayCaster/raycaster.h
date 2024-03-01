@@ -19,10 +19,11 @@
 #define halfFOV         (FOV / 2)
 
 #define delay           30
-#define incAngle        (FOV / screenWidth)
+#define incAngle        (double)FOV / (double)screenWidth
 #define precision       64
 
-
+#define movementSpeed   1.0
+#define rotationSpeed   5.0
 
 #define degreesToRadians(angleDegrees) ((angleDegrees) * M_PI / 180.0)
 #define radiansToDegrees(angleRadians) ((angleRadians) * 180.0 / M_PI)
