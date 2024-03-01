@@ -10,10 +10,22 @@ void drawLine(int x1, int y1, int x2, int y2, Color color) {
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 }
 
+void drawTexture(int x, int wallHeight, int texturePosX, Texture* tex) {
+    int yIncrementer = (wallHeight * 2) / tex->height;
+    int y = projHalfHeight - wallHeight;
+
+    for (int i = 0; i < tex->height; i++){
+        setDrawColor(renderer, tex->colors[tex->map[i][texturePosX]]);
+        SDL_RenderDrawLine(renderer, x, y, x, 
+            y + yIncrementer);
+        y += yIncrementer;
+    }
+}
+
 void rayCasting(Player *player) {
     double rayAngle = player->angle - halfFOV;
 
-    for (int rayCount = 0; rayCount < screenWidth; rayCount++) {
+    for (int rayCount = 0; rayCount < projWidth; rayCount++) {
         Ray ray = { player->x, player->y };
         float rayCos = cos(degreesToRadians(rayAngle)) / precision;
         float raySin = sin(degreesToRadians(rayAngle)) / precision;
@@ -28,17 +40,24 @@ void rayCasting(Player *player) {
         float distance = sqrt(pow(player->x - ray.x, 2) +
             pow(player->y - ray.y, 2));
         distance *= cos(degreesToRadians(rayAngle - player->angle));
-        float wallHeight = halfHeight / distance;
+        float wallHeight = projHalfHeight / distance;
+
+        
+        // TODO change the texture code to make it so you can  have more
+        // than 1 texture on different walls
+        int texturePosX = (int)floor((int)(texture1.width * (ray.x + ray.y)) % texture1.width);
+
 
         // Calculate screen coordinates of wall
-        int wallScreenHeight = (int)(halfHeight / distance);
-        int wallTop = halfHeight - wallScreenHeight / 2;
-        int wallBottom = halfHeight + wallScreenHeight / 2;
+        int wallScreenHeight = (int)(projHalfHeight / distance);
+        int wallTop = projHalfHeight - wallScreenHeight / 2;
+        int wallBottom = projHalfHeight + wallScreenHeight / 2;
 
         // Draw wall
         drawLine(rayCount, 0, rayCount, wallTop, blue);
-        drawLine(rayCount, wallTop, rayCount, wallBottom, red);
-        drawLine(rayCount, wallBottom, rayCount, screenHeight, green);
+        //drawLine(rayCount, wallTop, rayCount, wallBottom, red);
+        drawTexture(rayCount, wallHeight, texturePosX, &texture1);
+        drawLine(rayCount, wallBottom, rayCount, projHeight, green);
 
         // increment angle
         rayAngle += incAngle;
@@ -52,8 +71,10 @@ int main(int argc, char* argv) {
 
     // INIT WINDOW
 	SDL_Init(SDL_INIT_VIDEO);
-	window = SDL_CreateWindow("SDL2 line drawing", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
-	renderer = SDL_CreateRenderer(window, -1, 0);
+    window = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
+    renderer = SDL_CreateRenderer(window, -1, 0);
+    SDL_RenderSetLogicalSize(renderer, screenWidth, screenHeight);
+    SDL_RenderSetScale(renderer, scale, scale);
 
     Player player = { 2, 2, 90};
 
