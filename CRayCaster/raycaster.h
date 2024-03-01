@@ -2,7 +2,6 @@
 #define RAYCASTER_H_
 
 #include <SDL.h>
-#include <SDL_image.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -12,9 +11,9 @@
 
 #define mapWidth		10
 #define mapHeight		10
-#define screenWidth		640
-#define screenHeight	480
-#define scale           4
+#define screenWidth		1280
+#define screenHeight	720
+#define scale           2
 #define halfWidth       (screenWidth / 2)
 #define halfHeight      (screenHeight / 2)
 
@@ -33,6 +32,9 @@
 #define movementSpeed   0.05
 #define rotationSpeed   3.0
 #define radius          10
+
+#define birdEyeScale    20
+#define rayDrawnPerc    40
 
 #define degreesToRadians(angleDegrees) ((angleDegrees) * M_PI / 180.0)
 #define radiansToDegrees(angleRadians) ((angleRadians) * 180.0 / M_PI)

@@ -1,10 +1,5 @@
 #include "raycaster.h"
 
-// include things
-// SDL2.lib; SDL2main.lib; Shell32.lib;
-// tutorial being used
-// https://github.com/vinibiavatti1/RayCastingTutorial/wiki/Utilities
-
 void drawLine(int x1, int y1, int x2, int y2, Color color) {
     setDrawColor(renderer, color);
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
@@ -18,7 +13,7 @@ void drawTexture(int x, int wallHeight, int texturePosX, Texture* tex) {
         setDrawColor(renderer, tex->colors[tex->map[i][texturePosX]]);
         SDL_RenderDrawLine(renderer, x, y, x, 
             y + yIncrementer);
-        y += yIncrementer;
+        y += yIncrementer + 1.9;
     }
 }
 
@@ -59,6 +54,40 @@ void rayCasting(Player *player) {
         drawLine(rayCount, wallBottom, rayCount, projHeight, green);
 
         // increment angle
+        rayAngle += incAngle;
+    }
+}
+
+void drawMap(Player *player){
+    for (int i = 0; i < mapWidth; i++){
+        for (size_t j = 0; j < mapHeight; j++){
+            if (worldMap[i][j] == 0)
+                setDrawColor(renderer, empty);
+            else
+                setDrawColor(renderer, wall);
+            SDL_Rect rect = { j * birdEyeScale, i * birdEyeScale, birdEyeScale, birdEyeScale };
+            SDL_RenderFillRect(renderer, &rect);
+        }
+    }
+    setDrawColor(renderer, playerCol);
+    SDL_Rect rect = { player->x * birdEyeScale, player->y * birdEyeScale, birdEyeScale / 2, birdEyeScale / 2};
+    SDL_RenderFillRect(renderer, &rect);
+
+    setDrawColor(renderer, red);
+    double rayAngle = player->angle - halfFOV;
+    for (int rayCount = 0; rayCount < projWidth; rayCount++) {
+        Ray ray = { player->x, player->y };
+        float rayCos = cos(degreesToRadians(rayAngle)) / precision;
+        float raySin = sin(degreesToRadians(rayAngle)) / precision;
+
+        int wall = 0;
+        while (wall == 0) {
+            ray.x += rayCos;
+            ray.y += raySin;
+            wall = worldMap[(int)floor(ray.y)][(int)floor(ray.x)];
+        }
+        if (rayCount % rayDrawnPerc == 0)
+            SDL_RenderDrawLine(renderer, player->x * birdEyeScale, player->y * birdEyeScale, ray.x * birdEyeScale, ray.y * birdEyeScale);
         rayAngle += incAngle;
     }
 }
@@ -154,6 +183,7 @@ int main(int argc, char* argv) {
         //Color color = { 0,0,0,255 };
         //drawLine(0, 100, 0, 100, color);
         rayCasting(&player);
+        drawMap(&player);
 
         // RENDER WINDOW
         SDL_RenderPresent(renderer);
