@@ -2,6 +2,7 @@
 #define RAYCASTER_H_
 
 #include <SDL.h>
+#include <SDL_image.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -29,8 +30,9 @@
 #define incAngle        (double)FOV / (double)projWidth
 #define precision       64
 
-#define movementSpeed   1.0
-#define rotationSpeed   5.0
+#define movementSpeed   0.05
+#define rotationSpeed   3.0
+#define radius          10
 
 #define degreesToRadians(angleDegrees) ((angleDegrees) * M_PI / 180.0)
 #define radiansToDegrees(angleRadians) ((angleRadians) * 180.0 / M_PI)
@@ -61,6 +63,7 @@ typedef struct s_ray {
     float y;
 } Ray;
 
+bool up, down, left, right;
 
 SDL_Window* window;
 SDL_Renderer* renderer;

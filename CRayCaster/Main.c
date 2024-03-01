@@ -42,11 +42,8 @@ void rayCasting(Player *player) {
         distance *= cos(degreesToRadians(rayAngle - player->angle));
         float wallHeight = projHalfHeight / distance;
 
-        
-        // TODO change the texture code to make it so you can  have more
-        // than 1 texture on different walls
-        int texturePosX = (int)floor((int)(texture1.width * (ray.x + ray.y)) % texture1.width);
-
+        // MEMORY TEXTURES
+        int texturePosX = (int)floor((int)(memoryTextures[0].width * (ray.x + ray.y)) % memoryTextures[0].width);
 
         // Calculate screen coordinates of wall
         int wallScreenHeight = (int)(projHalfHeight / distance);
@@ -55,8 +52,10 @@ void rayCasting(Player *player) {
 
         // Draw wall
         drawLine(rayCount, 0, rayCount, wallTop, blue);
+        // RENDER WITH LINES
         //drawLine(rayCount, wallTop, rayCount, wallBottom, red);
-        drawTexture(rayCount, wallHeight, texturePosX, &texture1);
+        // RENDER WITH MEMORY TEXTURES
+        drawTexture(rayCount, wallHeight, texturePosX, &memoryTextures[0]);
         drawLine(rayCount, wallBottom, rayCount, projHeight, green);
 
         // increment angle
@@ -76,6 +75,7 @@ int main(int argc, char* argv) {
     SDL_RenderSetLogicalSize(renderer, screenWidth, screenHeight);
     SDL_RenderSetScale(renderer, scale, scale);
 
+    // INIT PLAYER
     Player player = { 2, 2, 90};
 
     while (!quit)
@@ -90,38 +90,60 @@ int main(int argc, char* argv) {
             quit = true;
             break;
         case SDL_KEYDOWN:
-            switch (event.key.keysym.sym) {
-                case SDLK_w: {
-                    double playerCos = cos(degreesToRadians(player.angle)) * movementSpeed;
-                    double playerSin = sin(degreesToRadians(player.angle)) * movementSpeed;
-                    double newX = playerCos + player.x;
-                    double newY = playerSin + player.y;
+            if (event.key.keysym.sym == SDLK_w)
+                up = true;
+            if (event.key.keysym.sym == SDLK_s)
+                down = true;
+            if (event.key.keysym.sym == SDLK_a)
+                left = true;
+            if (event.key.keysym.sym == SDLK_d)
+                right = true;
+            break;
+        case SDL_KEYUP:
+            if (event.key.keysym.sym == SDLK_w)
+                up = false;
+            if (event.key.keysym.sym == SDLK_s)
+                down = false;
+            if (event.key.keysym.sym == SDLK_a)
+                left = false;
+            if (event.key.keysym.sym == SDLK_d)
+                right = false;
+            break;
+        }
 
-                    if (worldMap[(int)floor(newY)][(int)floor(newX)] == 0) {
-                        player.x = newX;
-                        player.y = newY;
-                    }
-                    break;
-                }
-                case SDLK_s: {
-                    double playerCos = cos(degreesToRadians(player.angle)) * movementSpeed;
-                    double playerSin = sin(degreesToRadians(player.angle)) * movementSpeed;
-                    double newX = player.x - playerCos;
-                    double newY = player.y - playerSin;
+        if (up) {
+            double playerCos = cos(degreesToRadians(player.angle)) * movementSpeed;
+            double playerSin = sin(degreesToRadians(player.angle)) * movementSpeed;
+            double newX = playerCos + player.x;
+            double newY = playerSin + player.y;
+            int checkX = floor(newX + playerCos * radius);
+            int checkY = floor(newY + playerSin * radius);
 
-                    if (worldMap[(int)floor(newY)][(int)floor(newX)] == 0) {
-                        player.x = newX;
-                        player.y = newY;
-                    }
-                    break;
-                }
-                case SDLK_a:
-                    player.angle -= rotationSpeed;
-                    break;
-                case SDLK_d:
-                    player.angle += rotationSpeed;
-                    break;
-            }
+            if (worldMap[checkY][(int)floor(player.x)] == 0)
+                player.y = newY;
+            if (worldMap[(int)floor(player.y)][checkX] == 0)
+                player.x = newX;
+        }
+        else if (down) {
+            double playerCos = cos(degreesToRadians(player.angle)) * movementSpeed;
+            double playerSin = sin(degreesToRadians(player.angle)) * movementSpeed;
+            double newX = player.x - playerCos;
+            double newY = player.y - playerSin;
+            int checkX = floor(newX - playerCos * radius);
+            int checkY = floor(newY - playerSin * radius);
+
+            if (worldMap[checkY][(int)floor(player.x)] == 0)
+                player.y = newY;
+            if (worldMap[(int)floor(player.y)][checkX] == 0)
+                player.x = newX;
+        }
+        if (left){
+            player.angle -= rotationSpeed;
+            player.angle = (int)player.angle % 360;
+        }
+        else if (right){
+            player.angle += rotationSpeed;
+            player.angle = (int)player.angle % 360;
         }
 
         // CLEAR WINDOW
