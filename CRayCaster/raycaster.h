@@ -1,5 +1,4 @@
-#ifndef  RAYCASTER_H_
-#define RAYCASTER_H_
+#pragma once
 
 #include <SDL.h>
 #include <stdio.h>
@@ -36,10 +35,20 @@
 #define birdEyeScale    20
 #define rayDrawnPerc    40
 
+#define maxDistance     5
+
 #define degreesToRadians(angleDegrees) ((angleDegrees) * M_PI / 180.0)
 #define radiansToDegrees(angleRadians) ((angleRadians) * 180.0 / M_PI)
 
 #define setDrawColor(renderer, color) (SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a))
+
+Color multiply_color_by_float(Color color, float var) {
+    Color result = color;
+    result.r *= var;
+    result.g *= var;
+    result.b *= var;
+    return result;
+}
 
 int worldMap[mapWidth][mapHeight] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -69,5 +78,3 @@ bool up, down, left, right;
 
 SDL_Window* window;
 SDL_Renderer* renderer;
-
-#endif

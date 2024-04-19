@@ -1,16 +1,24 @@
 #include "raycaster.h"
 
+Color calculateLighting(Color texColor, float dist)
+{
+    float brightnessModifier = 1.0f - dist / maxDistance < 0.0f ? 0.0f : 1.0f - dist / maxDistance;
+    Color finalCol = multiply_color_by_float(texColor, brightnessModifier);
+    return finalCol;
+}
+
 void drawLine(int x1, int y1, int x2, int y2, Color color) {
     setDrawColor(renderer, color);
     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 }
 
-void drawTexture(int x, int wallHeight, int texturePosX, Texture* tex) {
+void drawTexture(int x, int wallHeight, int texturePosX, Texture* tex, float dist) {
     int yIncrementer = (wallHeight * 2) / tex->height;
     int y = projHalfHeight - wallHeight;
 
     for (int i = 0; i < tex->height; i++){
-        setDrawColor(renderer, tex->colors[tex->map[i][texturePosX]]);
+        Color finalColor = calculateLighting(tex->colors[tex->map[i][texturePosX]], dist);
+        setDrawColor(renderer, finalColor);
         SDL_RenderDrawLine(renderer, x, y, x, 
             y + yIncrementer);
         y += yIncrementer + 1.9;
@@ -50,7 +58,7 @@ void rayCasting(Player *player) {
         // RENDER WITH LINES
         //drawLine(rayCount, wallTop, rayCount, wallBottom, red);
         // RENDER WITH MEMORY TEXTURES
-        drawTexture(rayCount, wallHeight, texturePosX, &memoryTextures[0]);
+        drawTexture(rayCount, wallHeight, texturePosX, &memoryTextures[0], distance);
         drawLine(rayCount, wallBottom, rayCount, projHeight, green);
 
         // increment angle
@@ -180,8 +188,6 @@ int main(int argc, char* argv) {
         SDL_RenderClear(renderer);
 
         // RENDERING
-        //Color color = { 0,0,0,255 };
-        //drawLine(0, 100, 0, 100, color);
         rayCasting(&player);
         drawMap(&player);
 

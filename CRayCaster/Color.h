@@ -1,5 +1,4 @@
-#ifndef COLOR_H_
-#define COLOR_H_
+#pragma once
 
 typedef struct s_color {
 	int r;
@@ -14,6 +13,5 @@ Color blue = { 0,0,255,255 };
 
 Color empty = { 200,200,200,255 };
 Color wall = { 10,10,10,255 };
-Color playerCol = { 100,100,0,255 };
-
-#endif // !COLOR_H_
+Color playerCol = { 100,100,0,255 }; 
+Color lightCol = { 200, 200, 200,255 };

@@ -1,5 +1,4 @@
-#ifndef TEXTURE_H_ 
-#define TEXTURE_H_ 
+#pragma once
 
 #include "Color.h"
 
@@ -27,5 +26,3 @@ Texture memoryTextures[1] = {
     }}
 
 };
-
-#endif // !COLOR_H_
