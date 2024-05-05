@@ -37,7 +37,7 @@
 
 #define maxDistance     5
 
-#define degreesToRadians(angleDegrees) ((angleDegrees) * M_PI / 180.0)
+#define degreesToRadians(angleDegrees) (((angleDegrees) * M_PI) / 180.0)
 #define radiansToDegrees(angleRadians) ((angleRadians) * 180.0 / M_PI)
 
 #define setDrawColor(renderer, color) (SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a))

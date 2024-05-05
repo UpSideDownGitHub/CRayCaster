@@ -13,15 +13,14 @@ void drawLine(int x1, int y1, int x2, int y2, Color color) {
 }
 
 void drawTexture(int x, int wallHeight, int texturePosX, Texture* tex, float dist) {
-    int yIncrementer = (wallHeight * 2) / tex->height;
+    float yIncrementer = (wallHeight * 2) / tex->height;
     int y = projHalfHeight - wallHeight;
 
     for (int i = 0; i < tex->height; i++){
         Color finalColor = calculateLighting(tex->colors[tex->map[i][texturePosX]], dist);
         setDrawColor(renderer, finalColor);
-        SDL_RenderDrawLine(renderer, x, y, x, 
-            y + yIncrementer);
-        y += yIncrementer + 1.9;
+        SDL_RenderDrawLine(renderer, x, y, x, y + yIncrementer);
+        y += yIncrementer;
     }
 }
 
@@ -37,28 +36,25 @@ void rayCasting(Player *player) {
         while (wall == 0) {
             ray.x += rayCos;
             ray.y += raySin;
-            wall = worldMap[(int)floor(ray.y)][(int)floor(ray.x)];
+            wall = worldMap[(int)ray.y][(int)ray.x];
         }
 
-        float distance = sqrt(pow(player->x - ray.x, 2) +
-            pow(player->y - ray.y, 2));
-        distance *= cos(degreesToRadians(rayAngle - player->angle));
-        float wallHeight = projHalfHeight / distance;
+        float distance = sqrt(pow(player->x - ray.x, 2) + pow(player->y - ray.y, 2));
+        distance *= cos(degreesToRadians(player->angle - rayAngle));
 
         // MEMORY TEXTURES
-        int texturePosX = (int)floor((int)(memoryTextures[0].width * (ray.x + ray.y)) % memoryTextures[0].width);
+        int texturePosX = (int)(memoryTextures[0].width * (ray.x + ray.y)) % memoryTextures[0].width;
 
         // Calculate screen coordinates of wall
         int wallScreenHeight = (int)(projHalfHeight / distance);
         int wallTop = projHalfHeight - wallScreenHeight / 2;
         int wallBottom = projHalfHeight + wallScreenHeight / 2;
 
-        // Draw wall
+        // Draw Ceiling
         drawLine(rayCount, 0, rayCount, wallTop, blue);
-        // RENDER WITH LINES
-        //drawLine(rayCount, wallTop, rayCount, wallBottom, red);
-        // RENDER WITH MEMORY TEXTURES
-        drawTexture(rayCount, wallHeight, texturePosX, &memoryTextures[0], distance);
+        // Draw Wall
+        drawTexture(rayCount, wallScreenHeight, texturePosX, &memoryTextures[0], distance);
+        // Draw Floor
         drawLine(rayCount, wallBottom, rayCount, projHeight, green);
 
         // increment angle
